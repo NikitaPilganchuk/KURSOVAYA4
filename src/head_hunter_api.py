@@ -31,7 +31,6 @@ class HeadHunterAPI(AbstractClassAPI):
         return self.params['per_page']
 
     def get_vacancies(self):
-        print(self.params)
 
         response = requests.get('https://api.hh.ru/vacancies', params=self.params)
         if response.status_code == 200:
@@ -55,7 +54,9 @@ class HeadHunterAPI(AbstractClassAPI):
                     'Зарплата': middle,
                     'Должность': i['name'],
                     'Требования': i['snippet']['requirement'],
-                    'Обязанности': i['snippet']['responsibility']
+                    'Обязанности': i['snippet']['responsibility'],
+                    'Работодатель': i['employer']['name'],
+                    'ID работодателя': i['employer']['id']
                 }
                 vacancies_list.append(vacancy)
                 num += 1
@@ -72,6 +73,8 @@ class HeadHunterAPI(AbstractClassAPI):
                 print(f"Зарплата {vacancy['Зарплата']}")
                 print(f"Требования: {vacancy['Требования']}")
                 print(f"Обязанности: \n{vacancy['Обязанности']}")
+                print(f"Работодатель: {vacancy['Работодатель']}")
+                print(f"ID работодателя: {vacancy['ID работодателя']}")
                 print()
 
     def delete_vacancy(self, vacancy_number):
@@ -83,6 +86,24 @@ class HeadHunterAPI(AbstractClassAPI):
 
         with open('vacancies_HHru.json', 'w', encoding='utf-8') as f:
             json.dump(vacancies_list, f)
+
+
+    def get_employer_id(self):
+        with open ('vacancies_HHru.json', 'r', encoding='utf-8') as f:
+            vacancies_list = json.load(f)
+            print(vacancies_list)
+            self.params = {
+                'employers_id': vacancies_list['ID работодателя'],
+                'areas': 113,
+                'per_page': 100,
+            }
+        return self.params
+
+
+hh = HeadHunterAPI()
+hh.get_vacancies()
+hh.get_employer_id()
+hh.get_vacancies()
 
 
 
